@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+
+mkdir -p ~/src
+cd ~/src
+
+apt update -q
+apt install -y git iproute2 joe maven
+
+if [ ! -e iot-benchmark ] ; then
+   git clone https://github.com/thulab/iot-benchmark.git
+   cd iot-benchmark
+else
+   cd iot-benchmark
+   git pull
+fi
+
+
+mvn clean package -Dmaven.test.skip=true
+cd iotdb-2.0/target/iot-benchmark-iotdb-2.0/iot-benchmark-iotdb-2.0
+
+echo ""
+echo "===> The benchmark is here: $(pwd)"

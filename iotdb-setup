@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+docker network create --driver=bridge --subnet=169.254.100.0/24 --gateway=169.254.100.1 dbtest
+docker run -d --name iotdb-service \
+              --hostname iotdb-service \
+              --network dbtest \
+              --ip 169.254.100.100 \
+              -p 6667:6667 \
+              -e cn_internal_address=iotdb-service \
+              -e cn_seed_config_node=iotdb-service:10710 \
+              -e cn_internal_port=10710 \
+              -e cn_consensus_port=10720 \
+              -e dn_rpc_address=iotdb-service \
+              -e dn_internal_address=iotdb-service \
+              -e dn_seed_config_node=iotdb-service:10710 \
+              -e dn_mpp_data_exchange_port=10740 \
+              -e dn_schema_region_consensus_port=10750 \
+              -e dn_data_region_consensus_port=10760 \
+              -e dn_rpc_port=6667 \
+              apache/iotdb:2.0.10-standalone
+
+sleep 10
+
+docker exec -ti iotdb-service /iotdb/sbin/start-cli.sh -h iotdb-service
